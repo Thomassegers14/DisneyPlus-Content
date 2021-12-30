@@ -29,6 +29,18 @@ const svg = $graphWrapper
   .append("g")
   .attr("transform", `translate(${margin.left},${margin.top})`);
 
+var clickFlag = false;
+
+const tooltip = d3.select(".dotplot")
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip")
+
+const fixedTooltip = d3.select(".dotplot")
+  .append("div")
+  .style("opacity", 0)
+  .attr("class", "tooltip__fixed")
+
 // get the data
 d3.csv("data/data.csv").then(function(data) {
 
@@ -67,40 +79,27 @@ d3.csv("data/data.csv").then(function(data) {
   const y = d3.scaleLinear()
     .range([innerHeight / 2, 0]);
 
-  const tooltip = d3.select(".dotplot")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
+  // Add zero line
+  svg.append('line')
+    .attr('class', 'meanLine')
+    .attr('x1', x(d3.median(data, d => +d.imdb_score)))
+    .attr('x2', x(d3.median(data, d => +d.imdb_score)))
+    .attr('y1', 0)
+    .attr('y2', innerHeight)
 
-  const mouseover = function(event, d) {
-    tooltip.transition().style("opacity", 1)
+  svg.append('line')
+    .attr('class', 'meanLine')
+    .attr('x1', x(d3.quantile(data, 0.10, d => +d.imdb_score)))
+    .attr('x2', x(d3.quantile(data, 0.10, d => +d.imdb_score)))
+    .attr('y1', 0)
+    .attr('y2', innerHeight)
 
-    const dot = d3.select(this)
-    dot.raise().classed('dot--hover', true)
-      .transition()
-      .duration(100)
-      .attr('r', 10)
-  }
-
-  const mousemove = function(event, d) {
-    tooltip
-      .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p>`)
-      .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
-      .style("top", (event.y) + 24 + "px")
-  }
-
-  // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-  const mouseleave = function(event, d) {
-    tooltip.style("opacity", 0)
-
-    const dot = d3.select(this)
-    dot.classed('dot--hover', false)
-      .transition()
-      .duration(600)
-      .attr("r", function(d) {
-        return (d.length == 0) ? 0 : d.radius;
-      })
-  }
+  svg.append('line')
+    .attr('class', 'meanLine')
+    .attr('x1', x(d3.quantile(data, 0.90, d => +d.imdb_score)))
+    .attr('x2', x(d3.quantile(data, 0.90, d => +d.imdb_score)))
+    .attr('y1', 0)
+    .attr('y2', innerHeight)
 
   //g container for each bin
   const binContainer = svg.selectAll(".gBin")
@@ -119,6 +118,8 @@ d3.csv("data/data.csv").then(function(data) {
         jaar: p.jaar,
         titel: p.titel,
         imdb_score: p.imdb_score,
+        link: p.kijken,
+        trailer: p.trailer,
         // radius: (x(d.x1)-x(d.x0))/2
         radius: radius
       }
@@ -130,17 +131,75 @@ d3.csv("data/data.csv").then(function(data) {
     .attr("cy", function(d) {
       return -d.idx * 2 * d.radius;
     })
-    .attr("r", 0)
-    .on("mouseover", mouseover)
-    .on("mousemove", mousemove)
-    .on("mouseleave", mouseleave)
-    .transition()
-    .duration(500)
-    .delay(function(d) {
-      return Math.random() * 400;
-    })
+    // .attr("r", 0)
     .attr("r", function(d) {
       return (d.length == 0) ? 0 : d.radius;
     })
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
+    .on("click", showDescription)
+
+  d3.select("body").on("click", function() {
+    fixedTooltip
+      .classed('tooltip__fixed--active', false)
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+
+    console.log("on click bodyy");
+  })
 
 });
+
+const mouseover = function(event, d) {
+  tooltip
+    .classed('tooltip--active', true)
+    .transition()
+    .style("opacity", 1)
+
+  const dot = d3.select(this)
+  dot.raise().classed('dot--hover', true)
+    .transition()
+    .duration(100)
+    .attr('r', 10)
+}
+
+const mousemove = function(event, d) {
+  tooltip
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3>`)
+    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
+    .style("top", (event.y) + 24 + "px")
+}
+
+// A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+const mouseleave = function(event, d) {
+  tooltip
+    .classed('tooltip--active', false)
+    .transition()
+    .duration(200)
+    .style("opacity", 0)
+
+  const dot = d3.select(this)
+  dot.classed('dot--hover', false)
+    .transition()
+    .duration(600)
+    .attr("r", function(d) {
+      return (d.length == 0) ? 0 : d.radius;
+    })
+}
+
+const showDescription = function(event, d) {
+  fixedTooltip
+    .classed('tooltip__fixed--active', true)
+    .transition()
+    .style("opacity", 1)
+
+  fixedTooltip
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.link}</p>`)
+    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
+    .style("top", (event.y) + 24 + "px")
+
+  event.stopPropagation()
+
+}
