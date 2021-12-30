@@ -1,0 +1,54 @@
+body {
+  background-color: #eee;
+}
+
+.dotplot {
+  width: calc(100% - 40px);
+  height: 90vh;
+  border: 1px solid #e0e0e0;
+}
+
+.dot {
+  fill: #212121;
+  stroke: #eee;
+  stroke-width: 2px;
+  transition: stroke-width 200ms;
+}
+
+.dot--hover {
+  fill: black;
+  stroke-width: 0;
+}
+
+.tooltip {
+  position: absolute;
+  width: 150px;
+  background-color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.6rem;
+  padding: 12px;
+}
+
+.tooltip p {
+  margin: 0;
+}
+
+.tooltip__title {
+  text-transform: uppercase;
+}
+
+.tooltip__title span {
+  color: #78909c;
+  font-style: italic;
+}
+
+.axis text {
+  font-family: 'Roboto', sans-serif;
+  fill: black;
+}
+
+.axis line {
+  stroke: #9e9e9e;
+  stroke-dasharray: 0.1 3;
+  stroke-linecap: round;
+}
