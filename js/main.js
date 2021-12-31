@@ -148,6 +148,7 @@ d3.csv("data/data.csv").then(function(data) {
       return {
         idx: i,
         jaar: p.jaar,
+        type: p.soort,
         titel: p.titel,
         imdb_score: p.imdb_score,
         link: p.kijken,
@@ -158,7 +159,7 @@ d3.csv("data/data.csv").then(function(data) {
     }))
     .enter()
     .append("circle")
-    .attr("class", "dot")
+    .attr("class", d => `dot dot__${d.type}`)
     .attr("cx", 0) //g element already at correct x pos
     .attr("cy", function(d) {
       return -d.idx * 2 * d.radius;

@@ -1,5 +1,5 @@
 body {
-  background-color: #eee;
+  background-color: #e0e0e0;
 }
 
 nav {
@@ -23,13 +23,16 @@ nav {
 
 .dot {
   fill: #212121;
-  stroke: #eee;
+  stroke: #e0e0e0;
   stroke-width: 2px;
   transition: stroke-width 200ms;
 }
 
+.dot__Film {
+  fill: white;
+}
+
 .dot--hover {
-  fill: black;
   stroke-width: 0;
 }
 
