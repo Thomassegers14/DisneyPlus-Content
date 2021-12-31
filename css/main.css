@@ -77,5 +77,13 @@ nav {
 }
 
 .meanLine {
-  stroke: red;
+  stroke: #546e7a;
+}
+
+.dotplotAnnotation {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  fill: #546e7a;
 }

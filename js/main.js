@@ -101,6 +101,38 @@ d3.csv("data/data.csv").then(function(data) {
     .attr('y1', 0)
     .attr('y2', innerHeight)
 
+  svg.append('text')
+    .attr('class', 'dotplotAnnotation')
+    .attr('text-anchor', 'middle')
+    .attr('x', x(d3.quantile(data, 0.50, d => +d.imdb_score)) + (x(d3.quantile(data, 0.90, d => +d.imdb_score)) - x(d3.quantile(data, 0.50, d => +d.imdb_score))) / 2)
+    .attr('y', 0)
+    .attr('dy', '2rem')
+    .text('above average')
+
+  svg.append('text')
+    .attr('class', 'dotplotAnnotation')
+    .attr('text-anchor', 'middle')
+    .attr('x', x(d3.quantile(data, 0.10, d => +d.imdb_score)) + (x(d3.quantile(data, 0.50, d => +d.imdb_score)) - x(d3.quantile(data, 0.10, d => +d.imdb_score))) / 2)
+    .attr('y', 0)
+    .attr('dy', '2rem')
+    .text('below average')
+
+  svg.append('text')
+    .attr('class', 'dotplotAnnotation')
+    .attr('text-anchor', 'middle')
+    .attr('x', x(d3.quantile(data, 0, d => +d.imdb_score)) + (x(d3.quantile(data, 0.10, d => +d.imdb_score)) - x(d3.quantile(data, 0, d => +d.imdb_score))) / 2)
+    .attr('y', 0)
+    .attr('dy', '2rem')
+    .text('bad')
+
+  svg.append('text')
+    .attr('class', 'dotplotAnnotation')
+    .attr('text-anchor', 'middle')
+    .attr('x', x(d3.quantile(data, 0.9, d => +d.imdb_score)) + (x(d3.quantile(data, 1, d => +d.imdb_score)) - x(d3.quantile(data, 0.9, d => +d.imdb_score))) / 2)
+    .attr('y', 0)
+    .attr('dy', '2rem')
+    .text('good')
+
   //g container for each bin
   const binContainer = svg.selectAll(".gBin")
     .data(bins);
