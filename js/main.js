@@ -260,7 +260,6 @@ const drawScatterPlot = function(inputdata) {
     .on("mouseleave", mouseleave)
     .on("click", showDescription)
     .transition()
-    .delay((d, i) => i * 0.25)
     .attr("r", radius)
     .transition()
     .delay((d, i) => i * 0.25)
