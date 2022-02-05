@@ -1,3 +1,11 @@
+const hideStartScreen = function() {
+  d3.selectAll('.startScreen')
+    .transition()
+    .duration(500)
+    .style('opacity', 0)
+    .remove()
+}
+
 const btns = document.getElementsByClassName("button");
 
 for (var i = 0; i < btns.length; i++) {
