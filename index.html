@@ -1,24 +1,44 @@
 <!DOCTYPE html>
 <html lang="nl">
-  <head>
-    <meta charset="utf-8">
 
-    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-    <meta name="language" content="nl" />
+<head>
+  <meta charset="utf-8">
 
-    <!-- Load (external) scripts here (use 'defer' as shown below) -->
-    <script src="https://d3js.org/d3.v6.js"></script>
-    <script defer src="js/main.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+  <meta name="language" content="nl" />
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&display=swap" />
-    <link rel="stylesheet" href="css/main.css">
+  <!-- Load (external) scripts here (use 'defer' as shown below) -->
+  <script src="https://d3js.org/d3.v6.js"></script>
+  <script defer src="js/main.js"></script>
 
-    <title>Disney Plus Content</title>
-  </head>
-  <body>
-    <nav>
-    </nav>
-    <div class="dotplot"></div>
-    <div class="dotplot__tooltip">
-  </body>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,200;0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+
+  <title>Disney Plus Content</title>
+</head>
+
+<body>
+  <div class="header">
+    <div class="headerContent">
+      <h2 class="header__title">What's on <span>Disney Plus</span></h2>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="sideBar">
+      <div class="buttonWrapper">
+        <button type="button_1" name="button_1">button_1</button>
+      </div>
+      <div class="buttonWrapper">
+        <button type="button_2" name="button_2">button_2</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="dotplot"></div>
+      <div class="dotplot__tooltip"></div>
+    </div>
+  </div>
+</body>
+
 </html>
