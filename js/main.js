@@ -77,6 +77,7 @@ const xAxis = d3.axisTop(x)
 
 const yAxis = d3.axisLeft(y)
   .tickSize(-width)
+  .tickPadding(12)
   .ticks(width > 600 ? 10 : 4)
 
 var updateData;
@@ -141,7 +142,7 @@ const showDescription = function(event, d) {
     .style("opacity", 1)
 
   fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.link}</p>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.imdb}</p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 
@@ -215,6 +216,23 @@ const drawScatterPlot = function(inputdata) {
     return +d.histId
   }))
 
+  svg.append('text')
+    .attr('class', 'axis__label axis__label--x')
+    .attr('x', innerWidth / 2)
+    .attr('y', 0)
+    .attr('dy', '24px')
+    .text('IMDB SCORE')
+
+  svg.append('text')
+    .attr('class', 'axis__label axis__label--y axis--hide')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('dy', 24)
+    .attr('dx', -innerHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("transform", `translate(${0},${0}) rotate(${-90})`)
+    .text('IMDB SCORE')
+
   svg.append("g")
     .attr('class', 'axis axis--x')
     .attr('transform', `translate(0, ${innerHeight})`)
@@ -276,11 +294,15 @@ const update = function(xInput, yInput) {
   svg.select('.axis--x')
     .call(xAxis);
 
+  svg.select('.axis__label--x').text(xInput)
+
   if (yInput != "histId") {
     svg.select('.axis--y').classed('axis--hide', false)
       .call(yAxis);
+    svg.select('.axis__label--y').classed('axis--hide', false)
   } else {
     svg.select('.axis--y').classed('axis--hide', true)
+    svg.select('.axis__label--y').classed('axis--hide', true)
   }
 
   d3.selectAll('.axis').select('.domain').remove()

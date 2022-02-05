@@ -217,6 +217,14 @@ body {
   stroke-linecap: round;
 }
 
+.axis__label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  fill: #546e7a;
+}
+
 .axis--hide {
   display: none;
 }
