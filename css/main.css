@@ -161,7 +161,7 @@ body {
 
 .dot {
   fill: #212121;
-  stroke: #b0bec5;
+  stroke: transparent;
   stroke-width: 2px;
   transition: stroke-width 200ms;
 }
