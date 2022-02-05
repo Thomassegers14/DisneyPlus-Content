@@ -19,20 +19,20 @@
 </head>
 
 <body>
-  <div class="header">
-    <div class="headerContent">
-      <h2 class="header__title">What's on <span>Disney Plus</span></h2>
-    </div>
-  </div>
-
   <div class="page">
     <div class="sideBar">
-      <h2>Sort by</h2>
+      <h2 class="header__title">What's on <span>Disney+</span></h2>
+      <h3 class="header__subtitle">switch visualization</h3>
       <div class="buttonWrapper">
-        <button type="button_1" class="button button__active" onclick="update('imdb_score','histId')">group by score</button>
+        <button type="button_1" class="button button--active" onclick="update('imdb_score','histId')" value="This shows how movies or tv-shows are rated on IMDB, the online database for movie and TV">group by score</button>
       </div>
       <div class="buttonWrapper">
-        <button type="button_2" class="button" onclick="update('jaar','imdb_score')">sort by date</button>
+        <button type="button_2" class="button" onclick="update('jaar','imdb_score')" value="Starting from Steamboat Willie in 1928 to The Book of Boba Fett in 2022, Disney plus offers almost 100 years of entertainment.">sort by date</button>
+      </div>
+      <p id="explanation">This shows how movies or tv-shows are rated on IMDB, the online database for movie and TV</p>
+      <div class="menu">
+        <p class="menu__item"><a href="#">About</a></p>
+        <p class="menu__item"><a href="#">Contact</a></p>
       </div>
     </div>
     <div class="content">

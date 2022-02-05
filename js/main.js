@@ -1,12 +1,13 @@
 const btns = document.getElementsByClassName("button");
 
-console.log(btns);
-
 for (var i = 0; i < btns.length; i++) {
   btns[i].addEventListener("click", function() {
-    var current = document.getElementsByClassName("button__active");
-    current[0].className = current[0].className.replace(" button__active", "");
-    this.className += " button__active";
+    var current = document.getElementsByClassName("button--active");
+    current[0].className = current[0].className.replace(" button--active", "");
+    this.className += " button--active";
+
+    const x = this.value;
+    document.getElementById("explanation").innerHTML = x;
   })
 }
 
