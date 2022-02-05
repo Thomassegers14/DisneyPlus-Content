@@ -73,6 +73,7 @@ const y = d3.scaleLinear()
 const xAxis = d3.axisTop(x)
   .tickSize(innerHeight)
   .tickPadding(12)
+  .tickFormat(d3.format("d"))
 
 const yAxis = d3.axisLeft(y)
   .tickSize(-width)
@@ -220,7 +221,7 @@ const drawScatterPlot = function(inputdata) {
     .call(xAxis);
 
   svg.append('g')
-    .attr('class', 'axis axis--y')
+    .attr('class', 'axis axis--y axis--hide')
     .call(yAxis)
 
   d3.selectAll('.axis').select('.domain').remove()
@@ -275,8 +276,12 @@ const update = function(xInput, yInput) {
   svg.select('.axis--x')
     .call(xAxis);
 
-  svg.select('.axis--y')
-    .call(yAxis);
+  if (yInput != "histId") {
+    svg.select('.axis--y').classed('axis--hide', false)
+      .call(yAxis);
+  } else {
+    svg.select('.axis--y').classed('axis--hide', true)
+  }
 
   d3.selectAll('.axis').select('.domain').remove()
 
