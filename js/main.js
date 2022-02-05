@@ -93,7 +93,7 @@ d3.csv("data/data.csv").then(function(data) {
     d.date = parseDate(d.date);
     d.imdb_score = +d.imdb_score;
     d.histId = +d.histId;
-    d.jaar = +d.jaar
+    d.year = +d.year
   })
 
   drawScatterPlot(data)
@@ -115,7 +115,7 @@ const mouseover = function(event, d) {
 
 const mousemove = function(event, d) {
   tooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 }
@@ -142,7 +142,7 @@ const showDescription = function(event, d) {
     .style("opacity", 1)
 
   fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.imdb}</p>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.imdb}</p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 

@@ -1,4 +1,4 @@
-soort,titel,imdb,trailer,jaar,imdb_score,histId,yearId
+soort,titel,imdb,trailer,year,imdb_score,histId,yearId
 Film,'Twas the Night,"<a href=""https://www.imdb.com/find?ref_=nv_sr_fn&q='Twas+the+Night"" target=""_blank"">5.4</a>","<a href=""https://www.youtube.com/results?search_query=trailer+'Twas+the+Night"" target=""_blank"">Trailer</a>",2001,5.4,-6,-9.5
 Film,10 Things I Hate About You,"<a href=""https://www.imdb.com/find?ref_=nv_sr_fn&q=10+Things+I+Hate+About+You"" target=""_blank"">7.3</a>","<a href=""https://www.youtube.com/results?search_query=trailer+10+Things+I+Hate+About+You"" target=""_blank"">Trailer</a>",1999,7.3,-15.5,-10
 Serie,101 Dalmatian Street,"<a href=""https://www.imdb.com/find?ref_=nv_sr_fn&q=101+Dalmatian+Street"" target=""_blank"">6.3</a>","<a href=""https://www.youtube.com/results?search_query=trailer+101+Dalmatian+Street"" target=""_blank"">Trailer</a>",2019,6.3,19,-2.5
