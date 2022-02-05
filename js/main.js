@@ -41,15 +41,24 @@ const fixedTooltip = d3.select(".dotplot")
   .style("opacity", 0)
   .attr("class", "tooltip__fixed")
 
+const x = d3.scaleLinear()
+  .range([0, innerWidth]);
+
+const y = d3.scaleLinear()
+  .range([0, innerHeight])
+
 // get the data
 d3.csv("data/data.csv").then(function(data) {
 
-  // X axis: scale and draw:
-  const x = d3.scaleLinear()
-    .domain(d3.extent(data, d => {
-      return +d.imdb_score
-    }))
-    .range([0, innerWidth]);
+  drawDotPlot(data)
+
+});
+
+const drawDotPlot = function(data) {
+
+  x.domain(d3.extent(data, d => {
+    return +d.imdb_score
+  }))
 
   svg.append("g")
     .attr('class', 'axis axis--x')
@@ -75,10 +84,111 @@ d3.csv("data/data.csv").then(function(data) {
 
   const radius = 5
 
-  // Y axis: scale and draw:
-  const y = d3.scaleLinear()
-    .range([innerHeight / 2, 0]);
+  showGraphAnnotations(data)
 
+  //g container for each bin
+  const binContainer = svg.selectAll(".gBin")
+    .data(bins);
+
+  const binContainerEnter = binContainer.enter()
+    .append("g")
+    .attr("class", "gBin")
+    .attr("transform", d => `translate(${x(d.x0)}, ${innerHeight/2 + (d.length * radius)})`)
+
+  //need to populate the bin containers with data the first time
+  binContainerEnter.selectAll("circle")
+    .data(d => d.map((p, i) => {
+      return {
+        idx: i,
+        jaar: p.jaar,
+        type: p.soort,
+        titel: p.titel,
+        imdb_score: p.imdb_score,
+        link: p.kijken,
+        trailer: p.trailer,
+        radius: radius
+      }
+    }))
+    .enter()
+    .append("circle")
+    .attr("class", d => `dot dot__${d.type}`)
+    .attr("cx", 0) //g element already at correct x pos
+    .attr("cy", function(d) {
+      return -d.idx * 2 * d.radius;
+    })
+    // .attr("r", 0)
+    .attr("r", function(d) {
+      return (d.length == 0) ? 0 : d.radius;
+    })
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseleave", mouseleave)
+    .on("click", showDescription)
+
+  d3.select("body").on("click", function() {
+    fixedTooltip
+      .classed('tooltip__fixed--active', false)
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+
+  })
+
+}
+
+const mouseover = function(event, d) {
+  tooltip
+    .classed('tooltip--active', true)
+    .transition()
+    .style("opacity", 1)
+
+  const dot = d3.select(this)
+  dot.raise().classed('dot--hover', true)
+    .transition()
+    .duration(100)
+    .attr('r', 10)
+}
+
+const mousemove = function(event, d) {
+  tooltip
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3>`)
+    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
+    .style("top", (event.y) + 24 + "px")
+}
+
+// A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+const mouseleave = function(event, d) {
+  tooltip
+    .classed('tooltip--active', false)
+    .transition()
+    .duration(200)
+    .style("opacity", 0)
+
+  const dot = d3.select(this)
+  dot.classed('dot--hover', false)
+    .transition()
+    .duration(600)
+    .attr("r", function(d) {
+      return (d.length == 0) ? 0 : d.radius;
+    })
+}
+
+const showDescription = function(event, d) {
+  fixedTooltip
+    .classed('tooltip__fixed--active', true)
+    .transition()
+    .style("opacity", 1)
+
+  fixedTooltip
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.link}</p>`)
+    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
+    .style("top", (event.y) + 24 + "px")
+
+  event.stopPropagation()
+
+}
+
+const showGraphAnnotations = function(data) {
   // Add zero line
   svg.append('line')
     .attr('class', 'meanLine')
@@ -132,19 +242,46 @@ d3.csv("data/data.csv").then(function(data) {
     .attr('y', 0)
     .attr('dy', '2rem')
     .text('good')
+}
 
-  //g container for each bin
-  const binContainer = svg.selectAll(".gBin")
-    .data(bins);
+const drawScatterPlot = function(inputdata) {
 
-  const binContainerEnter = binContainer.enter()
-    .append("g")
-    .attr("class", "gBin")
-    .attr("transform", d => `translate(${x(d.x0)}, ${innerHeight/2 + (d.length * radius)})`)
+  const data = inputdata.filter(function(d) {
+    return !isNaN(+d.imdb_score) & !isNaN(+d.jaar);
+  })
+
+  x.domain(d3.extent(data, d => {
+    return +d.jaar
+  }))
+
+  y.domain([10, 1])
+
+  svg.append("g")
+    .attr('class', 'axis axis--x')
+    .attr('transform', `translate(0, ${innerHeight})`)
+    .call(
+      d3.axisTop(x)
+      .tickSize(innerHeight)
+      .tickPadding(12)
+    );
+
+  svg.append('g')
+    .attr('class', 'axis axis--y')
+    .call(d3.axisLeft(y)
+      .tickSize(-width)
+      .ticks(width > 600 ? 10 : 4))
+    .call(g => g.selectAll('.tick text')
+      .attr('text-anchor', 'start')
+      .attr('x', 0)
+      .attr('dy', -4))
+
+  d3.selectAll('.axis').select('.domain').remove()
+
+  const radius = 5
 
   //need to populate the bin containers with data the first time
-  binContainerEnter.selectAll("circle")
-    .data(d => d.map((p, i) => {
+  svg.selectAll("circle")
+    .data(d => data.map((p, i) => {
       return {
         idx: i,
         jaar: p.jaar,
@@ -153,17 +290,14 @@ d3.csv("data/data.csv").then(function(data) {
         imdb_score: p.imdb_score,
         link: p.kijken,
         trailer: p.trailer,
-        // radius: (x(d.x1)-x(d.x0))/2
         radius: radius
       }
     }))
     .enter()
     .append("circle")
     .attr("class", d => `dot dot__${d.type}`)
-    .attr("cx", 0) //g element already at correct x pos
-    .attr("cy", function(d) {
-      return -d.idx * 2 * d.radius;
-    })
+    .attr("cx", d => x(d.jaar) + Math.random() * (1 - 0.5 + 1) + 0.5) //g element already at correct x pos
+    .attr("cy", d => y(d.imdb_score))
     // .attr("r", 0)
     .attr("r", function(d) {
       return (d.length == 0) ? 0 : d.radius;
@@ -180,59 +314,6 @@ d3.csv("data/data.csv").then(function(data) {
       .duration(200)
       .style("opacity", 0)
 
-    console.log("on click bodyy");
   })
-
-});
-
-const mouseover = function(event, d) {
-  tooltip
-    .classed('tooltip--active', true)
-    .transition()
-    .style("opacity", 1)
-
-  const dot = d3.select(this)
-  dot.raise().classed('dot--hover', true)
-    .transition()
-    .duration(100)
-    .attr('r', 10)
-}
-
-const mousemove = function(event, d) {
-  tooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3>`)
-    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
-    .style("top", (event.y) + 24 + "px")
-}
-
-// A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-const mouseleave = function(event, d) {
-  tooltip
-    .classed('tooltip--active', false)
-    .transition()
-    .duration(200)
-    .style("opacity", 0)
-
-  const dot = d3.select(this)
-  dot.classed('dot--hover', false)
-    .transition()
-    .duration(600)
-    .attr("r", function(d) {
-      return (d.length == 0) ? 0 : d.radius;
-    })
-}
-
-const showDescription = function(event, d) {
-  fixedTooltip
-    .classed('tooltip__fixed--active', true)
-    .transition()
-    .style("opacity", 1)
-
-  fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.jaar}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.link}</p>`)
-    .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
-    .style("top", (event.y) + 24 + "px")
-
-  event.stopPropagation()
 
 }
