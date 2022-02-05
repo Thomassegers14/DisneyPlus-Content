@@ -17,6 +17,8 @@ const margin = {
   left: 30
 }
 
+const parseDate = d3.timeParse('%Y-%m-%d')
+
 // Set inner dimensions
 const innerWidth = width - margin.left - margin.right
 const innerHeight = height - margin.top - margin.bottom
@@ -45,96 +47,35 @@ const x = d3.scaleLinear()
   .range([0, innerWidth]);
 
 const y = d3.scaleLinear()
-  .range([0, innerHeight])
+  .range([innerHeight, 0])
+
+const xAxis = d3.axisTop(x)
+  .tickSize(innerHeight)
+  .tickPadding(12)
+
+const yAxis = d3.axisLeft(y)
+  .tickSize(-width)
+  .ticks(width > 600 ? 10 : 4)
+
+var updateData;
+
+const radius = 5
 
 // get the data
 d3.csv("data/data.csv").then(function(data) {
 
-  drawDotPlot(data)
+  updateData = data;
 
-});
-
-const drawDotPlot = function(data) {
-
-  x.domain(d3.extent(data, d => {
-    return +d.imdb_score
-  }))
-
-  svg.append("g")
-    .attr('class', 'axis axis--x')
-    .attr('transform', `translate(0, ${innerHeight})`)
-    .call(
-      d3.axisTop(x)
-      .tickSize(innerHeight)
-      .tickPadding(12)
-    );
-
-  d3.selectAll('.axis').select('.domain').remove()
-
-  // set the parameters for the histogram
-  const histogram = d3.histogram()
-    .value(function(d) {
-      return d.imdb_score;
-    }) // I need to give the vector of value
-    .domain(x.domain()) // then the domain of the graphic
-    .thresholds(x.ticks(200)); // then the numbers of bins
-
-  // And apply this function to data to get the bins
-  const bins = histogram(data).filter(d => d.length > 0)
-
-  const radius = 5
-
-  showGraphAnnotations(data)
-
-  //g container for each bin
-  const binContainer = svg.selectAll(".gBin")
-    .data(bins);
-
-  const binContainerEnter = binContainer.enter()
-    .append("g")
-    .attr("class", "gBin")
-    .attr("transform", d => `translate(${x(d.x0)}, ${innerHeight/2 + (d.length * radius)})`)
-
-  //need to populate the bin containers with data the first time
-  binContainerEnter.selectAll("circle")
-    .data(d => d.map((p, i) => {
-      return {
-        idx: i,
-        jaar: p.jaar,
-        type: p.soort,
-        titel: p.titel,
-        imdb_score: p.imdb_score,
-        link: p.kijken,
-        trailer: p.trailer,
-        radius: radius
-      }
-    }))
-    .enter()
-    .append("circle")
-    .attr("class", d => `dot dot__${d.type}`)
-    .attr("cx", 0) //g element already at correct x pos
-    .attr("cy", function(d) {
-      return -d.idx * 2 * d.radius;
-    })
-    // .attr("r", 0)
-    .attr("r", function(d) {
-      return (d.length == 0) ? 0 : d.radius;
-    })
-    .on("mouseover", mouseover)
-    .on("mousemove", mousemove)
-    .on("mouseleave", mouseleave)
-    .on("click", showDescription)
-
-  d3.select("body").on("click", function() {
-    fixedTooltip
-      .classed('tooltip__fixed--active', false)
-      .transition()
-      .duration(200)
-      .style("opacity", 0)
-
+  data.forEach((d) => {
+    d.date = parseDate(d.date);
+    d.imdb_score = +d.imdb_score;
+    d.histId = +d.histId;
+    d.jaar = +d.jaar
   })
 
-}
+  drawScatterPlot(data)
+
+});
 
 const mouseover = function(event, d) {
   tooltip
@@ -168,9 +109,7 @@ const mouseleave = function(event, d) {
   dot.classed('dot--hover', false)
     .transition()
     .duration(600)
-    .attr("r", function(d) {
-      return (d.length == 0) ? 0 : d.radius;
-    })
+    .attr("r", radius)
 }
 
 const showDescription = function(event, d) {
@@ -246,62 +185,36 @@ const showGraphAnnotations = function(data) {
 
 const drawScatterPlot = function(inputdata) {
 
-  const data = inputdata.filter(function(d) {
-    return !isNaN(+d.imdb_score) & !isNaN(+d.jaar);
-  })
-
-  x.domain(d3.extent(data, d => {
-    return +d.jaar
+  x.domain(d3.extent(inputdata, d => {
+    return +d.imdb_score
   }))
 
-  y.domain([10, 1])
+  y.domain(d3.extent(inputdata, d => {
+    return +d.histId
+  }))
 
   svg.append("g")
     .attr('class', 'axis axis--x')
     .attr('transform', `translate(0, ${innerHeight})`)
-    .call(
-      d3.axisTop(x)
-      .tickSize(innerHeight)
-      .tickPadding(12)
-    );
+    .call(xAxis);
 
   svg.append('g')
     .attr('class', 'axis axis--y')
-    .call(d3.axisLeft(y)
-      .tickSize(-width)
-      .ticks(width > 600 ? 10 : 4))
-    .call(g => g.selectAll('.tick text')
-      .attr('text-anchor', 'start')
-      .attr('x', 0)
-      .attr('dy', -4))
+    .call(yAxis)
 
   d3.selectAll('.axis').select('.domain').remove()
 
   const radius = 5
 
   //need to populate the bin containers with data the first time
-  svg.selectAll("circle")
-    .data(d => data.map((p, i) => {
-      return {
-        idx: i,
-        jaar: p.jaar,
-        type: p.soort,
-        titel: p.titel,
-        imdb_score: p.imdb_score,
-        link: p.kijken,
-        trailer: p.trailer,
-        radius: radius
-      }
-    }))
-    .enter()
-    .append("circle")
-    .attr("class", d => `dot dot__${d.type}`)
-    .attr("cx", d => x(d.jaar) + Math.random() * (1 - 0.5 + 1) + 0.5) //g element already at correct x pos
-    .attr("cy", d => y(d.imdb_score))
-    // .attr("r", 0)
-    .attr("r", function(d) {
-      return (d.length == 0) ? 0 : d.radius;
-    })
+  svg.append('g')
+    .selectAll("dot")
+    .data(inputdata)
+    .join("circle")
+    .attr("class", d => `dot dot__${d.soort}`)
+    .attr("cx", d => x(+d.imdb_score))
+    .attr("cy", d => y(+d.histId))
+    .attr("r", radius)
     .on("mouseover", mouseover)
     .on("mousemove", mousemove)
     .on("mouseleave", mouseleave)
@@ -315,5 +228,33 @@ const drawScatterPlot = function(inputdata) {
       .style("opacity", 0)
 
   })
+
+}
+
+// A function that create / update the plot for a given variable:
+const update = function(xInput, yInput) {
+
+  x.domain(d3.extent(updateData, d => {
+    return +d[xInput]
+  }))
+
+  y.domain(d3.extent(updateData, d => {
+    return +d[yInput]
+  }))
+
+  svg.select('.axis--x')
+    .call(xAxis);
+
+  svg.select('.axis--y')
+    .call(yAxis);
+
+  d3.selectAll('.axis').select('.domain').remove()
+
+  svg
+    .selectAll("circle")
+    .transition()
+    .delay((d, i) => i * 0.25)
+    .attr("cx", d => x(+d[xInput]))
+    .attr("cy", d => y(+d[yInput]))
 
 }
