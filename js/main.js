@@ -143,68 +143,12 @@ const showDescription = function(event, d) {
     .style("opacity", 1)
 
   fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>IMDB rating: ${d.imdb_score}</p><p><a href="${d.trailer}">Watch the trailer</a></p>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>IMDB rating: ${d.imdb_score}</p><p><a href=${d.trailer} target="_blank">Watch the trailer</a></p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 
   event.stopPropagation()
 
-}
-
-const showGraphAnnotations = function(data) {
-  // Add zero line
-  svg.append('line')
-    .attr('class', 'meanLine')
-    .attr('x1', x(d3.median(data, d => +d.imdb_score)))
-    .attr('x2', x(d3.median(data, d => +d.imdb_score)))
-    .attr('y1', 0)
-    .attr('y2', innerHeight)
-
-  svg.append('line')
-    .attr('class', 'meanLine')
-    .attr('x1', x(d3.quantile(data, 0.10, d => +d.imdb_score)))
-    .attr('x2', x(d3.quantile(data, 0.10, d => +d.imdb_score)))
-    .attr('y1', 0)
-    .attr('y2', innerHeight)
-
-  svg.append('line')
-    .attr('class', 'meanLine')
-    .attr('x1', x(d3.quantile(data, 0.90, d => +d.imdb_score)))
-    .attr('x2', x(d3.quantile(data, 0.90, d => +d.imdb_score)))
-    .attr('y1', 0)
-    .attr('y2', innerHeight)
-
-  svg.append('text')
-    .attr('class', 'dotplotAnnotation')
-    .attr('text-anchor', 'middle')
-    .attr('x', x(d3.quantile(data, 0.50, d => +d.imdb_score)) + (x(d3.quantile(data, 0.90, d => +d.imdb_score)) - x(d3.quantile(data, 0.50, d => +d.imdb_score))) / 2)
-    .attr('y', 0)
-    .attr('dy', '2rem')
-    .text('above average')
-
-  svg.append('text')
-    .attr('class', 'dotplotAnnotation')
-    .attr('text-anchor', 'middle')
-    .attr('x', x(d3.quantile(data, 0.10, d => +d.imdb_score)) + (x(d3.quantile(data, 0.50, d => +d.imdb_score)) - x(d3.quantile(data, 0.10, d => +d.imdb_score))) / 2)
-    .attr('y', 0)
-    .attr('dy', '2rem')
-    .text('below average')
-
-  svg.append('text')
-    .attr('class', 'dotplotAnnotation')
-    .attr('text-anchor', 'middle')
-    .attr('x', x(d3.quantile(data, 0, d => +d.imdb_score)) + (x(d3.quantile(data, 0.10, d => +d.imdb_score)) - x(d3.quantile(data, 0, d => +d.imdb_score))) / 2)
-    .attr('y', 0)
-    .attr('dy', '2rem')
-    .text('bad')
-
-  svg.append('text')
-    .attr('class', 'dotplotAnnotation')
-    .attr('text-anchor', 'middle')
-    .attr('x', x(d3.quantile(data, 0.9, d => +d.imdb_score)) + (x(d3.quantile(data, 1, d => +d.imdb_score)) - x(d3.quantile(data, 0.9, d => +d.imdb_score))) / 2)
-    .attr('y', 0)
-    .attr('dy', '2rem')
-    .text('good')
 }
 
 const drawScatterPlot = function(inputdata) {
