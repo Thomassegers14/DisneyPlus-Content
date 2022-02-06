@@ -35,7 +35,7 @@ const margin = {
   top: 30,
   right: 30,
   bottom: 30,
-  left: 30
+  left: width > 600 ? 30 : 48
 }
 
 const parseDate = d3.timeParse('%Y-%m-%d')
@@ -79,6 +79,7 @@ const yAxis = d3.axisLeft(y)
   .tickSize(-width)
   .tickPadding(12)
   .ticks(10)
+  .tickFormat(d3.format("d"))
 
 var updateData;
 
@@ -142,7 +143,7 @@ const showDescription = function(event, d) {
     .style("opacity", 1)
 
   fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>${d.imdb_score}</p><p>${d.trailer}</p><p>${d.imdb}</p>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>IMDB rating: ${d.imdb_score}</p><p><a href="${d.trailer}">Watch the trailer</a></p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 
@@ -265,8 +266,6 @@ const drawScatterPlot = function(inputdata) {
   }
 
   d3.selectAll('.axis').select('.domain').remove()
-
-  console.log(width);
 
   //need to populate the bin containers with data the first time
   svg.append('g')
