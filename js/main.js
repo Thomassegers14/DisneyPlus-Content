@@ -78,11 +78,11 @@ const xAxis = d3.axisTop(x)
 const yAxis = d3.axisLeft(y)
   .tickSize(-width)
   .tickPadding(12)
-  .ticks(width > 600 ? 10 : 4)
+  .ticks(10)
 
 var updateData;
 
-const radius = 5
+const radius = width > 600 ? 5 : 3
 
 // get the data
 d3.csv("data/data.csv").then(function(data) {
@@ -208,19 +208,35 @@ const showGraphAnnotations = function(data) {
 
 const drawScatterPlot = function(inputdata) {
 
-  x.domain(d3.extent(inputdata, d => {
-    return +d.imdb_score
-  }))
+  if (width > 600) {
 
-  y.domain(d3.extent(inputdata, d => {
-    return +d.histId
-  }))
+    x.domain(d3.extent(inputdata, d => {
+      return +d.imdb_score
+    }))
+
+    y.domain(d3.extent(inputdata, d => {
+      return +d.histId
+    }))
+
+  } else {
+
+    x.domain(d3.extent(inputdata, d => {
+        return +d.histId
+      }))
+      .range([0, innerWidth]);
+
+    y.domain(d3.extent(inputdata, d => {
+        return +d.imdb_score
+      }))
+      .range([innerHeight, 0]);
+  }
 
   svg.append('text')
     .attr('class', 'axis__label axis__label--x')
     .attr('x', innerWidth / 2)
     .attr('y', 0)
     .attr('dy', '24px')
+    .attr("text-anchor", "middle")
     .text('IMDB SCORE')
 
   svg.append('text')
@@ -239,12 +255,18 @@ const drawScatterPlot = function(inputdata) {
     .call(xAxis);
 
   svg.append('g')
-    .attr('class', 'axis axis--y axis--hide')
+    .attr('class', 'axis axis--y')
     .call(yAxis)
+
+  if (width > 600) {
+    svg.select('.axis--y').classed('axis--hide', true)
+  } else {
+    svg.select('.axis--x').classed('axis--hide', true)
+  }
 
   d3.selectAll('.axis').select('.domain').remove()
 
-  const radius = 5
+  console.log(width);
 
   //need to populate the bin containers with data the first time
   svg.append('g')
@@ -263,10 +285,10 @@ const drawScatterPlot = function(inputdata) {
     .attr("r", radius)
     .transition()
     .delay((d, i) => i * 0.25)
-    .attr("cx", d => x(+d.imdb_score))
+    .attr("cx", d => width > 600 ? x(+d.imdb_score) : x(+d.histId))
     .transition()
     .delay((d, i) => i * 0.25)
-    .attr("cy", d => y(+d.histId))
+    .attr("cy", d => width > 600 ? y(+d.histId) : y(+d.imdb_score))
 
   d3.select("body").on("click", function() {
     fixedTooltip
@@ -282,27 +304,60 @@ const drawScatterPlot = function(inputdata) {
 // A function that create / update the plot for a given variable:
 const update = function(xInput, yInput) {
 
+  if (width > 600) {
+    xVar = xInput;
+    yVar = yInput
+  } else {
+    xVar = yInput;
+    yVar = xInput;
+  }
+
   x.domain(d3.extent(updateData, d => {
-    return +d[xInput]
+    return +d[xVar]
   }))
 
   y.domain(d3.extent(updateData, d => {
-    return +d[yInput]
+    return +d[yVar]
   }))
 
-  svg.select('.axis--x')
-    .call(xAxis);
-
-  svg.select('.axis__label--x').text(xInput)
-
   if (yInput != "histId") {
-    svg.select('.axis--y').classed('axis--hide', false)
-      .call(yAxis);
-    svg.select('.axis__label--y').classed('axis--hide', false)
+    if (width > 600) {
+      svg.select('.axis--y')
+        .classed('axis--hide', false)
+        .call(yAxis);
+
+      svg.select('.axis--x')
+        .call(xAxis);
+    } else {
+      svg.select('.axis--x')
+        .classed('axis--hide', false)
+        .call(xAxis);
+
+      svg.select('.axis--y')
+        .call(yAxis);
+    }
   } else {
-    svg.select('.axis--y').classed('axis--hide', true)
-    svg.select('.axis__label--y').classed('axis--hide', true)
+    if (width > 600) {
+      svg.select('.axis--y')
+        .classed('axis--hide', true)
+        .call(yAxis);
+
+      svg.select('.axis--x')
+        .call(xAxis);
+    } else {
+      svg.select('.axis--x')
+        .classed('axis--hide', true)
+        .call(xAxis);
+
+      svg.select('.axis--y')
+        .call(yAxis);
+    }
   }
+
+  svg.select('.axis__label--x').text(xVar)
+
+  svg.select('.axis__label--y')
+    .text(yVar)
 
   d3.selectAll('.axis').select('.domain').remove()
 
@@ -310,7 +365,7 @@ const update = function(xInput, yInput) {
     .selectAll("circle")
     .transition()
     .delay((d, i) => i * 0.25)
-    .attr("cx", d => x(+d[xInput]))
-    .attr("cy", d => y(+d[yInput]))
+    .attr("cx", d => x(+d[xVar]))
+    .attr("cy", d => y(+d[yVar]))
 
 }

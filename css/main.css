@@ -28,6 +28,7 @@ body {
 .startScreen__element {
   max-width: 600px;
   text-align: center;
+  padding: 0 24px;
 }
 
 .startScreen__text {
@@ -55,11 +56,23 @@ body {
   transition: background-color 250ms ease-in-out;
 }
 
+.page {
+  display: flex;
+  flex-wrap: wrap;
+  height: calc(100vh);
+}
+
+.sideBar {
+  width: 250px;
+  padding: 24px 0 24px 24px;
+  background: #212121;
+}
+
 .header__title {
   font-weight: 400;
   font-size: 3rem;
   line-height: 1;
-  color: #616161;
+  color: #757575;
   font-style: italic;
   margin-bottom: 60px;
 }
@@ -76,17 +89,6 @@ body {
   display: block;
   color: white;
   font-style: normal;
-}
-
-.page {
-  display: flex;
-  height: calc(100vh);
-}
-
-.sideBar {
-  width: 250px;
-  padding: 24px 0 24px 24px;
-  background: #212121;
 }
 
 .button {
@@ -239,4 +241,43 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   fill: #546e7a;
+}
+
+@media (max-width: 768px) {
+  .startScreen__text {
+    font-size: 0.9rem;
+  }
+
+  .page {
+    align-content: flex-start;
+  }
+
+  .sideBar {
+    width: 100%;
+    padding: 24px;
+  }
+
+  .header__title {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+  }
+
+  .header__title span {
+    display: inline;
+  }
+
+  #explanation {
+    margin-top: 24px;
+  }
+
+  .menu {
+    position: inherit;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+
+  .content {
+    padding: 0;
+    height: 800px;
+  }
 }
