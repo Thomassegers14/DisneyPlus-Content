@@ -197,11 +197,13 @@ body {
 
 .tooltip p {
   margin: 0;
+  color: #78909c;
 }
 
 .tooltip__title {
   text-transform: uppercase;
   font-size: 0.7rem;
+  line-height: 1.2;
 }
 
 .tooltip__title span {

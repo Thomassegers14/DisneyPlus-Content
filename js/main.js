@@ -67,7 +67,13 @@ const fixedTooltip = d3.select(".dotplot")
 const x = d3.scaleLinear()
   .range([0, innerWidth]);
 
+const xDate = d3.scaleTime()
+  .range([0, innerWidth]);
+
 const y = d3.scaleLinear()
+  .range([innerHeight, 0])
+
+const yDate = d3.scaleTime()
   .range([innerHeight, 0])
 
 const xAxis = d3.axisTop(x)
@@ -78,7 +84,6 @@ const xAxis = d3.axisTop(x)
 const yAxis = d3.axisLeft(y)
   .tickSize(-width)
   .tickPadding(12)
-  .ticks(10)
   .tickFormat(d3.format("d"))
 
 var updateData;
@@ -91,7 +96,7 @@ d3.csv("data/data.csv").then(function(data) {
   updateData = data;
 
   data.forEach((d) => {
-    d.date = parseDate(d.date);
+    d.date_added = parseDate(d.date_added);
     d.imdb_score = +d.imdb_score;
     d.histId = +d.histId;
     d.year = +d.year
@@ -116,7 +121,7 @@ const mouseover = function(event, d) {
 
 const mousemove = function(event, d) {
   tooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3>`)
+    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>Click to see more</p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 }
@@ -177,7 +182,7 @@ const drawScatterPlot = function(inputdata) {
   }
 
   svg.append('text')
-    .attr('class', 'axis__label axis__label--x')
+    .attr('class', `axis__label axis__label--x ${width > 600 ? "" : "axis--hide"}`)
     .attr('x', innerWidth / 2)
     .attr('y', 0)
     .attr('dy', '24px')
@@ -185,7 +190,7 @@ const drawScatterPlot = function(inputdata) {
     .text('IMDB SCORE')
 
   svg.append('text')
-    .attr('class', 'axis__label axis__label--y axis--hide')
+    .attr('class', `axis__label axis__label--y ${width > 600 ? "axis--hide" : ""}`)
     .attr('x', 0)
     .attr('y', 0)
     .attr('dy', 24)
@@ -263,44 +268,67 @@ const update = function(xInput, yInput) {
     return +d[yVar]
   }))
 
-  if (yInput != "histId") {
-    if (width > 600) {
-      svg.select('.axis--y')
-        .classed('axis--hide', false)
-        .call(yAxis);
+  // When we want to hide the y-axis (or x-axis on mobile)
+  switch (yInput) {
+    case "histId":
 
-      svg.select('.axis--x')
-        .call(xAxis);
-    } else {
-      svg.select('.axis--x')
-        .classed('axis--hide', false)
-        .call(xAxis);
-
-      svg.select('.axis--y')
-        .call(yAxis);
-    }
-  } else {
-    if (width > 600) {
-      svg.select('.axis--y')
+      svg.select(width > 600 ? '.axis--y' : '.axis--x')
         .classed('axis--hide', true)
-        .call(yAxis);
+        .call(width > 600 ? yAxis : xAxis)
 
-      svg.select('.axis--x')
-        .call(xAxis);
-    } else {
-      svg.select('.axis--x')
+      svg.select(width > 600 ? '.axis__label--x' : '.axis__label--y')
+        .text(width > 600 ? xVar : yVar)
+      svg.select(width > 600 ? '.axis__label--y' : '.axis__label--x')
         .classed('axis--hide', true)
-        .call(xAxis);
+        .text(yVar)
 
-      svg.select('.axis--y')
-        .call(yAxis);
-    }
+      break;
+    default:
+
+      svg.select(width > 600 ? '.axis--y' : '.axis--x')
+        .classed('axis--hide', false)
+        .call(width > 600 ? yAxis : xAxis);
+
+      svg.select(width > 600 ? '.axis__label--x' : '.axis__label--y')
+        .classed('axis--hide', false)
+        .text(width > 600 ? xVar : yVar)
+      svg.select(width > 600 ? '.axis__label--y' : '.axis__label--x')
+        .classed('axis--hide', false)
+        .text(width > 600 ? yVar : xVar)
+
   }
 
-  svg.select('.axis__label--x').text(xVar)
+  // When we want to hide the x-axis (or y-axis on mobile)
+  switch (xInput) {
+    case "date_added":
 
-  svg.select('.axis__label--y')
-    .text(yVar)
+      if (width > 600) {
+        xDate.domain(d3.extent(updateData, d => {
+          return +d[xVar]
+        }))
+      } else {
+        yDate.domain(d3.extent(updateData, d => {
+          return +d[yVar]
+        }))
+      }
+
+      svg.select(width > 600 ? '.axis--x' : '.axis--y')
+        .call(width > 600 ?
+          d3.axisTop(xDate)
+          .tickSize(innerHeight)
+          .tickPadding(12)
+          .tickFormat(d3.timeFormat('%b %y')) :
+
+          d3.axisLeft(yDate)
+          .tickSize(-width)
+          .tickPadding(12)
+          .tickFormat(d3.timeFormat('%b %y')))
+
+      break;
+    default:
+      svg.select(width > 600 ? '.axis--x' : '.axis--y')
+        .call(width > 600 ? xAxis : yAxis);
+  }
 
   d3.selectAll('.axis').select('.domain').remove()
 
@@ -308,7 +336,7 @@ const update = function(xInput, yInput) {
     .selectAll("circle")
     .transition()
     .delay((d, i) => i * 0.25)
-    .attr("cx", d => x(+d[xVar]))
-    .attr("cy", d => y(+d[yVar]))
+    .attr("cx", d => yInput == "date_added" ? xDate(d[xVar]) : x(+d[xVar]))
+    .attr("cy", d => yInput == "date_added" ? yDate(d[yVar]) : y(+d[yVar]))
 
 }
