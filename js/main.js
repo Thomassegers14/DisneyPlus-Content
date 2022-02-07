@@ -223,20 +223,16 @@ const drawScatterPlot = function(inputdata) {
     .join("circle")
     .attr("class", d => `dot dot__${d.soort}`)
     .attr("cx", 0)
-    .attr("cy", innerHeight / 2)
+    .attr("cy", d => width > 600 ? y(+d.histId) : y(+d.imdb_score))
     .attr("r", 0)
     .on("mouseover", mouseover)
     .on("mousemove", mousemove)
     .on("mouseleave", mouseleave)
     .on("click", showDescription)
     .transition()
+    .delay((d, i) => i * 0.25)
     .attr("r", radius)
-    .transition()
-    .delay((d, i) => i * 0.25)
     .attr("cx", d => width > 600 ? x(+d.imdb_score) : x(+d.histId))
-    .transition()
-    .delay((d, i) => i * 0.25)
-    .attr("cy", d => width > 600 ? y(+d.histId) : y(+d.imdb_score))
 
   d3.select("body").on("click", function() {
     fixedTooltip
