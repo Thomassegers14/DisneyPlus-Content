@@ -99,7 +99,7 @@ d3.csv("data/data.csv").then(function(data) {
     d.date_added = parseDate(d.date_added);
     d.imdb_score = +d.imdb_score;
     d.histId = +d.histId;
-    d.year = +d.year
+    d.release_year = +d.release_year
   })
 
   drawScatterPlot(data)
@@ -121,7 +121,7 @@ const mouseover = function(event, d) {
 
 const mousemove = function(event, d) {
   tooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>Click to see more</p>`)
+    .html(`<img class="tooltip__img" src="${d.img}" alt=""><h3 class="tooltip__title">${d.title}<span> ${d.release_year}</span></h3><p>Click to see more</p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 }
@@ -148,7 +148,7 @@ const showDescription = function(event, d) {
     .style("opacity", 1)
 
   fixedTooltip
-    .html(`<h3 class="tooltip__title">${d.titel}<span> ${d.year}</span></h3><p>IMDB rating: ${d.imdb_score}</p><p><a href=${d.trailer} target="_blank">Watch the trailer</a></p>`)
+    .html(`<img class="tooltip__img" src="${d.img}" alt=""><h3 class="tooltip__title">${d.title}<span> ${d.release_year}</span></h3><p>${d.genres}</p><p>IMDB rating: ${d.imdb_score}</p>`)
     .style("left", (event.x) - 75 + "px") // It is important to put the +12: other wise the tooltip is exactly where the point is an it creates a weird effect
     .style("top", (event.y) + 24 + "px")
 
@@ -221,7 +221,7 @@ const drawScatterPlot = function(inputdata) {
     .selectAll("dot")
     .data(inputdata)
     .join("circle")
-    .attr("class", d => `dot dot__${d.soort}`)
+    .attr("class", d => `dot dot__${d.type}`)
     .attr("cx", 0)
     .attr("cy", d => width > 600 ? y(+d.histId) : y(+d.imdb_score))
     .attr("r", 0)

@@ -168,7 +168,7 @@ body {
   transition: stroke-width 200ms;
 }
 
-.dot__Film {
+.dot__movies {
   fill: white;
 }
 
@@ -198,6 +198,10 @@ body {
 .tooltip p {
   margin: 0;
   color: #78909c;
+}
+
+.tooltip__img {
+  width: 100%;
 }
 
 .tooltip__title {
